@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+
+# Django
+media/
+staticfiles/
+
+# Environment variables
+.env
+
+# VS Code
+.vscode/
+
+# Mac/Linux
+.DS_Store
+
+# Pytest cache (future)
+.pytest_cache/
+
+# Migrations cache (optional but safe)
+*.log
