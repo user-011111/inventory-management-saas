@@ -142,3 +142,4 @@ Next Steps
     Documentation for frontend integration
 
     Optional: add automated tests and logs
+# inventory-management-saas
