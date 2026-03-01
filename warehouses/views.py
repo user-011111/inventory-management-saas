@@ -22,7 +22,7 @@ class CompanyViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user  # ✅ properly indented
+        user = self.request.user
 
         # Superuser sees all companies
         if user.is_superuser:
@@ -44,6 +44,7 @@ class CompanyViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("Only owner can create company")
         serializer.save(owner=self.request.user)
 
+
 # -----------------------------
 # Warehouse ViewSet
 # -----------------------------
@@ -52,7 +53,12 @@ class WarehouseViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Warehouse.objects.filter(company=self.request.user.company)
+        user = self.request.user
+
+        if not user.company:
+            return Warehouse.objects.none()
+
+        return Warehouse.objects.filter(company=user.company)
 
     def perform_create(self, serializer):
         if self.request.user.role != "owner":

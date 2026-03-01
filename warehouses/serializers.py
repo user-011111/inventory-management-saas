@@ -14,6 +14,7 @@ class WarehouseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Warehouse
         fields = "__all__"
+        read_only_fields = ["company"]
 
 
 class ProductSerializer(serializers.ModelSerializer):
