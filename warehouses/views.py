@@ -75,10 +75,8 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role == "employee":
-            return Product.objects.filter(
-                warehouse_products__warehouse=user.assigned_warehouse
-            )
+        # Now both Owners, Managers, and Employees see all company products
+        # But the Serializer (above) will control which stock numbers they see
         return Product.objects.filter(company=user.company)
 
     def perform_create(self, serializer):
@@ -90,6 +88,17 @@ class ProductViewSet(viewsets.ModelViewSet):
         if self.request.user.role not in ["owner", "manager"]:
             raise PermissionDenied("Not allowed to update product")
         serializer.save()
+    
+    def perform_destroy(self, instance):
+        # Restriction: Only Owner and Manager can delete 
+        if self.request.user.role not in ["owner", "manager"]:
+            raise PermissionDenied("You do not have permission to delete products.")
+        
+        # Ensure they can only delete products belonging to their own company 
+        if instance.company != self.request.user.company:
+             raise PermissionDenied("You cannot delete products from another company.")
+             
+        instance.delete()
 
 
 # -----------------------------

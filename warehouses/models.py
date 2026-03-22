@@ -43,32 +43,6 @@ class Product(models.Model):
         return self.name
 
 
-class InventoryMovement(models.Model):
-    MOVEMENT_TYPES = (
-        ("IN", "Stock In"),
-        ("OUT", "Stock Out"),
-    )
-
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        related_name="movements"
-    )
-    warehouse = models.ForeignKey(
-        Warehouse,
-        on_delete=models.CASCADE,
-        related_name="movements"
-    )
-    movement_type = models.CharField(
-        max_length=10,
-        choices=MOVEMENT_TYPES
-    )
-    quantity = models.IntegerField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.product.name} - {self.movement_type}"
-
 
 class StockTransfer(models.Model):
     STATUS_CHOICES = (
