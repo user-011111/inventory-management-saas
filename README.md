@@ -1,145 +1,119 @@
 # Inventory Management SaaS Backend
 
-This is the backend of a **Warehouse & Inventory Management SaaS** system built with **Django** and **Django REST Framework**.  
-It supports multiple companies, warehouses, and users with role-based permissions.
+A Django REST API for managing multi-company warehouse operations, including user roles, warehouse stock, stock transfers, and employee-level stock adjustments.
 
----
+## Overview
 
-## Project Overview
+This project is a backend service for an inventory and warehouse management system. It is built with Django and Django REST Framework, uses a custom user model, and secures API access with JWT authentication.
 
-The system allows companies to manage:
+The application is organized into two main apps:
 
-- Products in multiple warehouses
-- Stock per warehouse
-- Transfers between warehouses with a **2-step approval workflow**
-- Multi-role user management
+- `users` — authentication, owner registration, user creation, and current-user lookup
+- `warehouses` — companies, warehouses, products, stock tracking, transfers, and stock adjustments
 
-Roles:
+## Core Features
 
-| Role      | Permissions / Actions |
-|-----------|----------------------|
-| Owner     | Can create company, warehouses, products, managers, and employees. Has full access. |
-| Manager   | Can create product transfers, view company stock. Cannot create company or warehouses. |
-| Employee  | Can approve outgoing or incoming transfers for their assigned warehouse. Cannot create or edit products or transfers. |
+- Custom user model with role-based access
+- Company-based data isolation
+- Warehouse management per company
+- Product catalog per company
+- Stock tracking by warehouse
+- Stock transfers between warehouses
+- Two-step transfer approval workflow
+- Direct stock adjustment endpoint
+- JWT authentication
+- CORS enabled
 
----
+## User Roles
 
-## Features
+### Owner
+- Registers account and creates company
+- Can create users, warehouses, and products
+- Can create and update transfers
 
-- **Multi-tenant system**: Each company’s data is isolated.
-- **Role-based permissions**: Owner, Manager, Employee.
-- **Warehouse-level stock tracking**.
-- **2-step transfer approval workflow**:
-  - Employee of `from_warehouse` approves OUT
-  - Employee of `to_warehouse` approves IN
-  - Stock is updated automatically only after both approvals
-- **Secure JWT authentication**
-- **Owner can register first account and create other users via API**
+### Manager
+- Can manage products and create transfers
+- Cannot approve transfers
 
----
+### Employee
+- Assigned to a warehouse
+- Can approve transfers
+- Can adjust stock for their warehouse
 
-## Technologies Used
+## Data Model
 
-- Python 3.x
-- Django 4.x
+- **User**: role, company, assigned warehouse
+- **Company**: tenant entity
+- **Warehouse**: belongs to company
+- **Product**: belongs to company
+- **WarehouseProduct**: stock per warehouse
+- **StockTransfer**: tracks movement between warehouses
+
+## API Endpoints
+
+### Auth
+- POST `/api/register/`
+- POST `/api/token/`
+- POST `/api/token/refresh/`
+- GET `/api/user/`
+
+### Users
+- POST `/api/create-user/`
+
+### Core Resources
+- `/api/companies/`
+- `/api/warehouses/`
+- `/api/products/`
+- `/api/transfers/`
+
+### Stock Adjustment
+- POST `/api/adjust-stock/`
+
+Example:
+{
+  "product_id": 1,
+  "quantity": 10,
+  "operation": "in"
+}
+
+## Tech Stack
+
+- Django
 - Django REST Framework
-- PostgreSQL (or SQLite for testing)
-- JWT Authentication (via `djangorestframework-simplejwt`)
+- Simple JWT
+- PostgreSQL
+- django-cors-headers
 
----
+## Project Structure
 
-## Installation
+inventory-management-saas/
+├── config/
+├── users/
+├── warehouses/
+├── manage.py
+├── requirements.txt
 
-1. Clone the repository:
+## Setup
 
-git clone https://github.com/user011111/inventory-management-saas.git
+```bash
+git clone https://github.com/user-011111/inventory-management-saas.git
 cd inventory-management-saas
-
-2. Create a virtual environment and activate:
-
-python3 -m venv venv
+python -m venv venv
 source venv/bin/activate
-
-3. Install dependencies:
-
 pip install -r requirements.txt
-
-4. Apply migrations:
-
 python manage.py migrate
-
-5. Start the server:
-
 python manage.py runserver
+```
 
-API Endpoints (Overview)
+## Notes
 
-Authentication:
+- DEBUG is enabled for development
+- CORS is fully open
+- JWT tokens: 1h access / 7d refresh
 
-    POST /api/token/ → Login, get JWT tokens
+## Future Improvements
 
-    POST /api/token/refresh/ → Refresh token
-
-User Management:
-
-    POST /api/register/ → Register the first Owner
-
-    POST /api/create-user/ → Owner creates Managers or Employees
-
-Company & Warehouse:
-
-    GET /api/companies/ → List companies
-
-    POST /api/companies/ → Create company (Owner only)
-
-    GET /api/warehouses/ → List warehouses
-
-    POST /api/warehouses/ → Create warehouse (Owner only)
-
-Products & Stock:
-
-    GET /api/products/ → List products
-
-    POST /api/products/ → Create product (Owner/Manager)
-
-    Stock is managed per warehouse
-
-Transfers:
-
-    POST /api/transfers/ → Create stock transfer (Manager/Owner)
-
-    PATCH /api/transfers/<id>/ → Approve OUT/IN (Employee)
-
-    Automatic stock update after approvals
-Notes
-
-    Employees can only see products and transfers relevant to their assigned warehouse.
-
-    Managers and Owners can see all company data.
-
-    Transfer between warehouses of different companies is blocked.
-
-    Transfer to the same warehouse is blocked.
-
-Getting Started
-
-    Register first Owner via /api/register/
-
-    Login to get JWT token
-
-    Owner creates Manager and Employees via /api/create-user/
-
-    Create company, warehouses, and products
-
-    Manager creates transfers
-
-    Employees approve transfers → stock is updated automatically
-
-Next Steps
-
-    Full testing of all endpoints
-
-    Documentation for frontend integration
-
-    Optional: add automated tests and logs
-# inventory-management-saas
+- Add tests
+- Add API docs
+- Improve validation
+- Add pagination
