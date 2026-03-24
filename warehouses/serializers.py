@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from .models import StockTransfer, Company, Product, Warehouse, WarehouseProduct
 from django.db.models import Sum
-# -----------------------------
-# Existing Model Serializers
-# -----------------------------
+
+from .models import StockTransfer, Company, Product, Warehouse, WarehouseProduct
+
+
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
@@ -17,8 +17,15 @@ class WarehouseSerializer(serializers.ModelSerializer):
         read_only_fields = ["company"]
 
 
+class WarehouseInventorySerializer(serializers.ModelSerializer):
+    quantity = serializers.IntegerField()
+
+    class Meta:
+        model = Product
+        fields = ["id", "name", "sku", "quantity"]
+
+
 class ProductSerializer(serializers.ModelSerializer):
-    # New dynamic fields
     stock_details = serializers.SerializerMethodField()
     total_company_stock = serializers.SerializerMethodField()
 
@@ -28,36 +35,42 @@ class ProductSerializer(serializers.ModelSerializer):
         read_only_fields = ["company"]
 
     def get_stock_details(self, obj):
-        user = self.context['request'].user
-        
-        # Scenario A: Employee sees only their warehouse
+        user = self.context["request"].user
+
+        # Employee: only see their assigned warehouse stock
         if user.role == "employee":
+            if not user.assigned_warehouse:
+                return {
+                    "warehouse_name": "N/A",
+                    "quantity": 0
+                }
+
             wp = WarehouseProduct.objects.filter(
-                warehouse=user.assigned_warehouse, 
+                warehouse=user.assigned_warehouse,
                 product=obj
             ).first()
+
             return {
-                "warehouse_name": user.assigned_warehouse.name if user.assigned_warehouse else "N/A",
+                "warehouse_name": user.assigned_warehouse.name,
                 "quantity": wp.quantity if wp else 0
             }
 
-        # Scenario B: Owner/Manager sees a breakdown of ALL warehouses
-        # Filtered by the user's company to ensure data isolation
+        # Owner / Manager: see all warehouse stock breakdowns in the company
         stock_breakdown = WarehouseProduct.objects.filter(
             product=obj,
             warehouse__company=user.company
-        ).values('warehouse__name', 'quantity')
-        
+        ).values("warehouse__name", "quantity")
+
         return list(stock_breakdown)
 
     def get_total_company_stock(self, obj):
-        user = self.context['request'].user
-        # Sum up all quantities for this product across the entire company
+        user = self.context["request"].user
+
         total = WarehouseProduct.objects.filter(
             product=obj,
             warehouse__company=user.company
-        ).aggregate(Sum('quantity'))['quantity__sum']
-        
+        ).aggregate(Sum("quantity"))["quantity__sum"]
+
         return total or 0
 
 
@@ -82,13 +95,13 @@ class StockTransferSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
-# -----------------------------
-# New Serializer for Employee Stock Adjustment
-# -----------------------------
+
 class StockAdjustmentSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
     quantity = serializers.IntegerField()
-    operation = serializers.ChoiceField(choices=[("in", "Stock In"), ("out", "Stock Out")])
+    operation = serializers.ChoiceField(
+        choices=[("in", "Stock In"), ("out", "Stock Out")]
+    )
 
     def validate_product_id(self, value):
         if not Product.objects.filter(id=value).exists():

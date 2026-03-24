@@ -160,6 +160,14 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
     "ngrok-skip-browser-warning",
 ]
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),   # was 5–15 min by default
