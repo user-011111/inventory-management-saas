@@ -1,5 +1,5 @@
 
-<<<<<<< HEAD
+HEAD
 A Django REST API for managing multi-company warehouse operations, including user roles, warehouse stock, stock transfers, and employee-level stock adjustments.
 
 ## Overview
@@ -117,5 +117,3 @@ python manage.py runserver
 - Add API docs
 - Improve validation
 - Add pagination
-=======
->>>>>>> 5f9a218a5bcc80a606af2ada4d1caa2f0a8017a1
