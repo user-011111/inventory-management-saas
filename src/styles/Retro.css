@@ -1,0 +1,62 @@
+/* Container principal avec un aspect papier/rétro */
+.retro-container {
+  background-color: #f4f1ea;
+  min-height: 90vh;
+  padding: 2rem;
+  border-radius: 20px;
+  border: 2px solid #5d4037;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* Titres stylisés */
+.retro-container h2 {
+  color: #5d4037;
+  font-weight: bold;
+  border-bottom: 3px double #5d4037;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+/* Cartes d'entrepôts avec effet de bordure épaisse */
+.retro-card {
+  background: white;
+  border: 2px solid #5d4037;
+  box-shadow: 5px 5px 0px #5d4037;
+  border-radius: 10px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+.retro-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0px #5d4037;
+}
+
+/* Boutons typés "Machine à écrire" */
+.retro-btn {
+  background-color: #5d4037;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+
+.retro-btn:hover {
+  background-color: #3e2723;
+  cursor: pointer;
+}
+
+/* Inputs de formulaire sobres */
+.retro-container .form-control {
+  border: 1px solid #5d4037;
+  border-radius: 5px;
+  background-color: #fffdfa;
+}
+
+.retro-container .form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(93, 64, 55, 0.25);
+  border-color: #5d4037;
+}
