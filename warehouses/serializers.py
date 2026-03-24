@@ -37,7 +37,6 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_stock_details(self, obj):
         user = self.context["request"].user
 
-        # Employee: only see their assigned warehouse stock
         if user.role == "employee":
             if not user.assigned_warehouse:
                 return {
@@ -55,7 +54,6 @@ class ProductSerializer(serializers.ModelSerializer):
                 "quantity": wp.quantity if wp else 0
             }
 
-        # Owner / Manager: see all warehouse stock breakdowns in the company
         stock_breakdown = WarehouseProduct.objects.filter(
             product=obj,
             warehouse__company=user.company
@@ -95,6 +93,47 @@ class StockTransferSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
+    def validate(self, data):
+        request = self.context["request"]
+        company = request.user.company
+
+        product = data.get("product")
+        from_warehouse = data.get("from_warehouse")
+        to_warehouse = data.get("to_warehouse")
+
+        if product and product.company != company:
+            raise serializers.ValidationError(
+                "Product must belong to your company"
+            )
+
+        if from_warehouse and from_warehouse.company != company:
+            raise serializers.ValidationError(
+                "Source warehouse must belong to your company"
+            )
+
+        if to_warehouse and to_warehouse.company != company:
+            raise serializers.ValidationError(
+                "Destination warehouse must belong to your company"
+            )
+
+        if (
+            product and from_warehouse and
+            product.company != from_warehouse.company
+        ):
+            raise serializers.ValidationError(
+                "Product and source warehouse must belong to the same company"
+            )
+
+        if (
+            product and to_warehouse and
+            product.company != to_warehouse.company
+        ):
+            raise serializers.ValidationError(
+                "Product and destination warehouse must belong to the same company"
+            )
+
+        return data
+
 
 class StockAdjustmentSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
@@ -104,8 +143,19 @@ class StockAdjustmentSerializer(serializers.Serializer):
     )
 
     def validate_product_id(self, value):
-        if not Product.objects.filter(id=value).exists():
+        request = self.context.get("request")
+        user = request.user if request else None
+
+        try:
+            product = Product.objects.get(id=value)
+        except Product.DoesNotExist:
             raise serializers.ValidationError("Product does not exist")
+
+        if user and product.company != user.company:
+            raise serializers.ValidationError(
+                "Product does not belong to your company"
+            )
+
         return value
 
     def validate_quantity(self, value):

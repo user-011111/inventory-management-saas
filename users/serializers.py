@@ -19,7 +19,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         company_name = validated_data.pop("company_name")
         password = validated_data.pop("password")
 
-        # Step 1: Create user (without company first)
         user = User(
             username=validated_data["username"],
             email=validated_data.get("email"),
@@ -28,13 +27,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
 
-        # Step 2: Create company with owner
         company = Company.objects.create(
             name=company_name,
             owner=user
         )
 
-        # Step 3: Attach company to user
         user.company = company
         user.save()
 
@@ -63,16 +60,24 @@ class CreateUserSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
-        # Employee must have a warehouse assigned
-        if data["role"] == "employee" and not data.get("assigned_warehouse"):
+        request = self.context["request"]
+        owner_company = request.user.company
+        assigned_warehouse = data.get("assigned_warehouse")
+        role = data["role"]
+
+        if role == "employee" and not assigned_warehouse:
             raise serializers.ValidationError(
                 "Employee must be assigned to a warehouse"
             )
 
-        # Manager cannot have a warehouse
-        if data["role"] == "manager" and data.get("assigned_warehouse"):
+        if role == "manager" and assigned_warehouse:
             raise serializers.ValidationError(
                 "Manager cannot be assigned to a warehouse"
+            )
+
+        if assigned_warehouse and assigned_warehouse.company != owner_company:
+            raise serializers.ValidationError(
+                "Assigned warehouse must belong to your company"
             )
 
         return data
@@ -82,12 +87,12 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
         user = User(**validated_data)
         user.set_password(password)
-
-        # Assign same company as authenticated owner
         user.company = self.context["request"].user.company
-
         user.save()
+
         return user
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

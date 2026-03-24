@@ -170,7 +170,10 @@ class StockAdjustmentView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        serializer = StockAdjustmentSerializer(data=request.data)
+        serializer = StockAdjustmentSerializer(
+    data=request.data,
+    context={"request": request}
+)
         serializer.is_valid(raise_exception=True)
 
         product_id = serializer.validated_data["product_id"]
