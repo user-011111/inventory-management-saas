@@ -1,7 +1,5 @@
-HEAD
-A Django REST API for managing multi-company warehouse operations, including user roles, warehouse stock, stock transfers, and employee-level stock adjustments.
+A Django REST API for managing multi-company warehouse operations, including user roles, warehouse stock, stock transfers, and employee-level stock adjustments
 # Inventory Management SaaS – Backend Report
->>>>>>> 9008d63 (Update README with backend report)
 
 ## Overview
 
@@ -116,7 +114,6 @@ POST /api/adjust-stock/
 
 ## Conclusion
 
-<<<<<<< HEAD
 ## Setup
 
 ```bash
@@ -143,4 +140,4 @@ python manage.py runserver
 - Add pagination
 
 This backend provides a clean and scalable architecture for inventory management, separating product data from stock, enforcing business rules, and exposing clear APIs.
-9008d63 (Update README with backend report)
+
