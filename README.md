@@ -1,143 +1,153 @@
-A Django REST API for managing multi-company warehouse operations, including user roles, warehouse stock, stock transfers, and employee-level stock adjustments
-# Inventory Management SaaS – Backend Report
+# Inventory Management SaaS
+
+A Django REST API for managing multi-company warehouse operations, including role-based access control, warehouse stock tracking, stock transfers, and employee stock adjustments.
 
 ## Overview
 
-This project is a backend system for an Inventory Management SaaS built using Django and Django REST Framework. The system supports multi-company architecture with role-based access control and warehouse-based stock management.
+This project is a backend system for an Inventory Management SaaS built with Django and Django REST Framework.
 
-The backend is responsible for:
-- Managing companies, users, warehouses, and products
-- Tracking stock per warehouse
-- Handling stock transfers between warehouses
-- Enforcing business rules and permissions
-- Providing APIs for frontend consumption
+It supports:
+- Multi-company architecture
+- Role-based access control
+- Warehouse-based inventory tracking
+- Stock transfers between warehouses
+- Employee-level stock adjustments
+- JWT authentication for API access
 
----
+## Tech Stack
 
-## Architecture
+- Django 6
+- Django REST Framework
+- PostgreSQL
+- Simple JWT
+- django-cors-headers
 
-The project is divided into two main apps:
+## Project Structure
 
-### 1. Users App
+The backend is organized into two main apps:
+
+### `users`
 Handles:
-- Authentication (JWT)
-- User roles (owner, manager, employee)
+- Authentication
+- Owner registration
+- User creation
+- Role management
 - Company assignment
-- Warehouse assignment for employees
+- Employee warehouse assignment
 
-### 2. Warehouses App
+### `warehouses`
 Handles:
 - Companies
 - Warehouses
 - Products
-- Warehouse stock (WarehouseProduct)
+- Warehouse inventory
 - Stock transfers
 - Stock adjustments
-
----
 
 ## Core Design Decision
 
 ### Separation of Product and Stock
 
-A key architectural decision was to separate:
-- Product (catalog data)  
-- WarehouseProduct (stock data)  
+The system separates product catalog data from stock data:
 
-This means:
-- Product contains: name, sku, company
-- Stock is stored per warehouse using WarehouseProduct
+- `Product`: shared catalog information such as name, SKU, and company
+- `WarehouseProduct`: warehouse-specific stock quantity for a product
 
----
+## Main Features
 
-## Features Implemented
-
-### Authentication & Authorization
+### Authentication and Authorization
 - JWT-based authentication
 - Role-based permissions
+- Company-level data isolation
 
 ### Company Management
-- Owner creates company
-- Data isolation per company
+- Owners can create companies
+- Each company's data is isolated from others
 
 ### Warehouse Management
-- Warehouses linked to company
-- Employee assigned to one warehouse
+- Warehouses belong to a company
+- Employees can be assigned to a warehouse
 
 ### Product Management
-- Owner/Manager manage products
+- Owners and managers can manage products
 
-### Warehouse Inventory Endpoint
-GET /api/warehouses/<id>/inventory/
-
-Returns all products with quantity in that warehouse (0 if not present)
-
-### Stock Management
-Handled via WarehouseProduct (warehouse + product + quantity)
+### Inventory Tracking
+- Inventory is stored per warehouse
+- Stock quantities are managed through warehouse-product relationships
 
 ### Stock Adjustment
+Endpoint:
+
 POST /api/adjust-stock/
 
-- operation: "in" or "out"
-- only employee allowed
-- uses assigned warehouse automatically
-
-### Product Stock Visibility
-- Owner/Manager: full visibility
-- Employee: own warehouse + total company stock only
+- Supports `in` and `out` operations
+- Intended for employees
+- Uses the employee's assigned warehouse automatically
 
 ### Stock Transfers
-- Manager creates transfer
-- Employees approve (outgoing/incoming)
-- Stock updated after both approvals
+Endpoint group:
 
----
+/api/transfers/
 
-## Security
+- Managers create stock transfers
+- Employees approve outgoing and incoming transfer steps
+- Stock updates after both approvals are completed
 
-- Company-based data isolation
-- Role-based permissions
-- Validation on warehouse and product ownership
-- Prevent negative stock
+## API Endpoints
 
----
+### Authentication
+- POST /api/token/
+- POST /api/token/refresh/
 
-## Tech Stack
+### Users
+- POST /api/register/
+- POST /api/create-user/
+- GET /api/user/
 
-- Django
-- Django REST Framework
-- PostgreSQL
-- JWT (Simple JWT)
-- django-cors-headers
-
----
-
-## Conclusion
+### Warehouse Domain
+- /api/companies/
+- /api/warehouses/
+- /api/products/
+- /api/transfers/
+- POST /api/adjust-stock/
 
 ## Setup
 
-```bash
+### 1. Clone the repository
 git clone https://github.com/user-011111/inventory-management-saas.git
 cd inventory-management-saas
+
+### 2. Create and activate a virtual environment
 python -m venv venv
 source venv/bin/activate
+
+On Windows:
+venv\Scripts\activate
+
+### 3. Install dependencies
 pip install -r requirements.txt
+
+### 4. Configure PostgreSQL
+
+Update the database settings in config/settings.py if needed.
+
+### 5. Run migrations
 python manage.py migrate
+
+### 6. Start the development server
 python manage.py runserver
-```
 
-## Notes
+## Development Notes
 
-- DEBUG is enabled for development
-- CORS is fully open
-- JWT tokens: 1h access / 7d refresh
+- DEBUG = True
+- CORS is open to all origins
+- JWT access token lifetime is 1 hour
+- JWT refresh token lifetime is 7 days
 
 ## Future Improvements
 
-- Add tests
-- Add API docs
+- Add automated tests
+- Add API documentation
 - Improve validation
 - Add pagination
-
-This backend provides a clean and scalable architecture for inventory management, separating product data from stock, enforcing business rules, and exposing clear APIs.
-
+- Move secrets to environment variables
