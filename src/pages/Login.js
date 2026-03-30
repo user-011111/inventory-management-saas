@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // 1. Ajout de Link ici
 import api from '../api/axiosConfig';
 
 function Login() {
@@ -8,7 +8,6 @@ function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
-  // Correction de la ligne qui causait l'erreur "Initialization"
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -17,34 +16,24 @@ function Login() {
     setLoading(true);
 
     try {
-      // 1. Appel au backend pour obtenir le Token
       const response = await api.post('/api/token/', { 
         username: username, 
         password: password 
       });
       
       const token = response.data.access;
-      
-      // On sauvegarde le token et le nom immédiatement
       localStorage.setItem('token', token);
       localStorage.setItem('username', username);
 
       try {
-        // 2. Appel au profil (URL corrigée par Student A : /api/user/)
         const userRes = await api.get('/api/user/');
-        
-        // On récupère le rôle (ex: 'owner' ou 'employee')
         const role = userRes.data.role || 'employee';
         localStorage.setItem('userRole', role);
-        
-        console.log("Profil récupéré avec succès. Rôle :", role);
       } catch (profileErr) {
         console.warn("L'API /api/user/ a échoué, utilisation du rôle par défaut.");
-        // Si le profil échoue (ex: 404), on met 'employee' pour ne pas bloquer
         localStorage.setItem('userRole', 'employee');
       }
 
-      // 3. Tout est bon, on va vers le Dashboard
       navigate('/dashboard');
 
     } catch (err) {
@@ -60,7 +49,6 @@ function Login() {
       <div className="card p-4 shadow-lg border-0" style={{ width: '100%', maxWidth: '400px', borderRadius: '15px' }}>
         <div className="text-center mb-4">
           <h2 className="fw-bold" style={{ color: '#0d6efd' }}>Connexion</h2>
-          <p className="text-muted small">Inventaire SaaS - Portail Riyad</p>
         </div>
         
         {error && (
@@ -109,6 +97,14 @@ function Login() {
             )}
           </button>
         </form>
+
+        {/* 2. Ajout du lien vers la page d'inscription */}
+        <div className="text-center mt-3">
+          <p className="small text-muted">
+            Vous n'avez pas de compte ? <Link to="/register" className="fw-bold text-decoration-none" style={{ color: '#0d6efd' }}>S'inscrire</Link>
+          </p>
+        </div>
+
       </div>
     </div>
   );

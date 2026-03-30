@@ -23,13 +23,14 @@ function Notifications() {
           name: p.name, sku: p.sku, quantity: p.quantity - parseInt(t.qty), warehouse: t.fromId
         });
         updateStatus(t.id, "EN_TRANSIT");
+        alert(`✅ CONFIRMÉ : La sortie de ${t.qty} x ${t.productName} de l'entrepôt ${t.fromName} est validée.`);
       } else {
         await api.put(`/api/products/${t.productId}/`, {
           name: p.name, sku: p.sku, quantity: (p.quantity || 0) + parseInt(t.qty), warehouse: t.toId
         });
         removeTransfer(t.id);
+        alert(`✅ BIEN REÇU : ${t.qty} x ${t.productName} ont été ajoutés au stock de ${t.toName}.`);
       }
-      alert("Stock mis à jour !");
       loadTransfers();
     } catch (err) { alert("Erreur lors de la mise à jour."); }
   };
@@ -53,14 +54,14 @@ function Notifications() {
             <div>
               <h5 className="fw-bold">{t.productName} (x{t.qty})</h5>
               <p className="small mb-0 text-muted">De: {t.fromName} ➔ Vers: {t.toName}</p>
-              <span className="badge bg-warning text-dark mt-2">{t.status}</span>
+              <span className="badge bg-warning text-dark mt-2">{t.status.replace(/_/g, ' ')}</span>
             </div>
             <div>
-              {t.status === "EN_ATTENTE_DEPART" && (userRole !== "employee" || assignedWarehouse == t.fromId) && (
-                <button className="btn btn-dark btn-sm" onClick={() => handleProcess(t, "DEPART")}>Valider Sortie</button>
+              {t.status === "EN_ATTENTE_DEPART" && (userRole !== "employee" || String(assignedWarehouse) === String(t.fromId)) && (
+                <button className="btn btn-dark btn-sm" onClick={() => handleProcess(t, "DEPART")}>Confirmer Sortie</button>
               )}
-              {t.status === "EN_TRANSIT" && (userRole !== "employee" || assignedWarehouse == t.toId) && (
-                <button className="btn btn-success btn-sm" onClick={() => handleProcess(t, "ARRIVEE")}>Confirmer Arrivée</button>
+              {t.status === "EN_TRANSIT" && (userRole !== "employee" || String(assignedWarehouse) === String(t.toId)) && (
+                <button className="btn btn-success btn-sm" onClick={() => handleProcess(t, "ARRIVEE")}>Confirmer Entrée</button>
               )}
             </div>
           </div>

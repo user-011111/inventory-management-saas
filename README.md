@@ -150,4 +150,9 @@ python manage.py runserver
 - Add API documentation
 - Improve validation
 - Add pagination
+<<<<<<< HEAD
 - Move secrets to environment variables
+
+
+This backend provides a clean and scalable architecture for inventory management, separating product data from stock, enforcing business rules, and exposing clear APIs.
+

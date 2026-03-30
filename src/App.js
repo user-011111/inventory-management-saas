@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // PAGES
@@ -6,8 +6,10 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Warehouses from "./pages/Warehouses";
-import WarehouseDetail from "./pages/WarehouseDetail"; // La nouvelle page de stock
+import WarehouseDetail from "./pages/WarehouseDetail";
 import Notifications from "./pages/Notifications";
+import AddUser from "./pages/AddUser"; // 1. AJOUTER CET IMPORT
+
 // COMPOSANTS
 import MainLayout from "./components/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -16,14 +18,11 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Redirection automatique vers le login au démarrage */}
         <Route path="/" element={<Navigate to="/login" />} />
-
-        {/* Routes publiques */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Routes protégées (Nécessitent un Token) */}
+        {/* Routes protégées */}
         <Route
           element={
             <ProtectedRoute>
@@ -33,12 +32,13 @@ function App() {
         >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/warehouses" element={<Warehouses />} />
-          {/* Route dynamique pour voir les produits d'un entrepôt spécifique */}
           <Route path="/warehouses/:id" element={<WarehouseDetail />} />
           <Route path="/notifications" element={<Notifications />} />
+          
+          {/* 2. AJOUTER LA ROUTE ICI */}
+          <Route path="/add-user" element={<AddUser />} /> 
         </Route>
 
-        {/* Gestion du 404 */}
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
