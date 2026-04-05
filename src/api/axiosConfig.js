@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   // Remplace bien par le DERNIER lien que Student A t'a donné
-  baseURL: 'https://unpersonalizing-enormously-kaliyah.ngrok-free.dev', 
+  baseURL: 'http://localhost:8000', 
   headers: {
     'Content-Type': 'application/json',
     // CE HEADER SAUTE LA PAGE D'AVERTISSEMENT NGROK
